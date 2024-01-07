@@ -1,4 +1,20 @@
 from src.video import Video, PLVideo
+from src.channel import Channel
+
+
+def main():
+    channel_id = "UC-OVMPlMA3-YCIeg4z5z23A"
+    channel = Channel(channel_id)
+
+    print(f"Название канала: {channel.title}")
+    print(f"Описание канала: {channel.description}")
+    print(f"Количество подписчиков: {channel.subscriber_count}")
+    print(f"Количество видео: {channel.video_count}")
+    print(f"Общее количество просмотров: {channel.view_count}")
+
+    # Сохранение данных в JSON-файл
+    channel.to_json("channel_data.json")
+
 
 if __name__ == '__main__':
     # Создаем два экземпляра класса
