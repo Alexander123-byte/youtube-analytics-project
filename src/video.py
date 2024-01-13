@@ -3,10 +3,14 @@ from googleapiclient.discovery import build
 
 
 class Video:
-    def __init__(self, video_id):
+    def __init__(self, video_id=None):
         self.video_id = video_id
-        self.api_key = os.environ.get("YT_API_KEY")
-        self.youtube = self.get_service()
+        self.title = None
+        self.like_count = None
+        self.fetch_video_data()
+
+    def set_video_id(self, video_id):
+        self.video_id = video_id
         self.fetch_video_data()
 
     @classmethod
@@ -15,19 +19,26 @@ class Video:
         return build("youtube", "v3", developerKey=api_key)
 
     def fetch_video_data(self):
-        request = self.youtube.videos().list(
-            part="snippet,statistics",
-            id=self.video_id
-        )
-        response = request.execute()
+        try:
+            if not self.video_id:
+                return
 
-        snippet = response["items"][0]["snippet"]
-        statistics = response["items"][0]["statistics"]
+            api_key = "YT_API_KEY"
+            youtube = build("youtube", "v3", developerKey=api_key)
 
-        self.title = snippet.get("title", "")
-        self.link = f"https://www.youtube.com/watch?v={self.video_id}"
-        self.views = int(statistics.get("viewCount", 0))
-        self.likes = int(statistics.get("likeCount", 0))
+            video_info = youtube.videos().list(
+                part="snippet,statistics",
+                id=self.video_id
+            ).execute()
+
+            if video_info["items"]:
+                snippet = video_info["items"][0]["snippet"]
+                statistics = video_info["items"][0]["statistics"]
+
+                self.title = snippet.get("title", None)
+                self.like_count = int(statistics.get("likeCount", None))
+        except Exception as e:
+            print(f"Error fetching video data: {e}")
 
     def __str__(self):
         return self.title
